@@ -1,0 +1,32 @@
+version: 0.2
+
+# nginxの更新はあまり行われないので、railsの自動デプロイのみ作成する
+phases:
+  pre_build:
+    commands:
+      - echo Logiging ECR
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - docker pull $AWS_ECR_BUILD_REPOSITORY:latest
+      - docker tag $AWS_ECR_BUILD_REPOSITORY:latest build:latest
+      - IMAGE_TAG=$(echo ${CODEBUILD_RESOLVED_SOURCE_VERSION} | head -c 7)
+      # CODEBUILD_RESOLVED_SOURCE_VERSION: ビルドのソースコードのバージョンの識別子。内容は、以下のようなソースコードリポジトリによって異なります。
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building docker rails image
+      - docker build build:latest -t $IMAGE_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_NAME:$IMAGE_TAG $AWS_ECR_BUILD_REPOSITORY:$IMAGE_TAG
+
+  post_build:
+    commands:
+      - echo Build completed on `data`
+      - echo Pushing docker image
+      - docker push $AWS_ECR_BUILD_REPOSITORY:latest
+      - docker push $AWS_ECR_BUILD_REPOSITORY:$IMAGE_TAG
+      - echo Writing image definitions file...
+      - printf '[{"name":"rails-eks","ImageURI":"%s"}]' $AWS_ECR_BUILD_REPOSITORY:$IMAGE_TAG > imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
