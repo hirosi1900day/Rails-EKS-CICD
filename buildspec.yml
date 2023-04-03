@@ -6,8 +6,6 @@ phases:
     commands:
       - echo Logiging ECR
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-      - docker pull $AWS_ECR_BUILD_REPOSITORY:latest
-      - docker tag $AWS_ECR_BUILD_REPOSITORY:latest build:latest
       - IMAGE_TAG=$(echo ${CODEBUILD_RESOLVED_SOURCE_VERSION} | head -c 7)
       # CODEBUILD_RESOLVED_SOURCE_VERSION: ビルドのソースコードのバージョンの識別子。内容は、以下のようなソースコードリポジトリによって異なります。
 
@@ -15,7 +13,7 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building docker rails image
-      - docker build build:latest -t $IMAGE_NAME:$IMAGE_TAG .
+      - docker build -t $IMAGE_NAME:$IMAGE_TAG .
       - docker tag $IMAGE_NAME:$IMAGE_TAG $AWS_ECR_BUILD_REPOSITORY:$IMAGE_TAG
 
   post_build:
