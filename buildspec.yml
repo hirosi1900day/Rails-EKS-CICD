@@ -4,27 +4,28 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo Logiging ECR
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-      - IMAGE_TAG=$(echo ${CODEBUILD_RESOLVED_SOURCE_VERSION} | head -c 7)
-      # CODEBUILD_RESOLVED_SOURCE_VERSION: ビルドのソースコードのバージョンの識別子。内容は、以下のようなソースコードリポジトリによって異なります。
-
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 572919087216.dkr.ecr.ap-northeast-1.amazonaws.com
+      - REPOSITORY_URI=572919087216.dkr.ecr.ap-northeast-1.amazonaws.com/rails-eks
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      # - $(aws ecs describe-task-definition --task-definition ecs-sample-webapp-task-def:4 --query taskDefinition | jq '.containerDefinitions[0].image="<IMAGE1_NAME>"' > taskdef.json)
   build:
     commands:
       - echo Build started on `date`
-      - echo Building docker rails image
-      - docker build -t $IMAGE_NAME:$IMAGE_TAG .
-      - docker tag $IMAGE_NAME:$IMAGE_TAG $AWS_ECR_BUILD_REPOSITORY:$IMAGE_TAG
-
+      - echo Building the Docker image...
+      - docker build -t $REPOSITORY_URI:latest .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
   post_build:
     commands:
-      - echo Build completed on `data`
-      - echo Pushing docker image
-      - docker push $AWS_ECR_BUILD_REPOSITORY:latest
-      - docker push $AWS_ECR_BUILD_REPOSITORY:$IMAGE_TAG
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo Writing image definitions file...
-      - printf '[{"name":"rails-eks","ImageURI":"%s"}]' $AWS_ECR_BUILD_REPOSITORY:$IMAGE_TAG > imagedefinitions.json
-
+      - printf '[{"name":"sample-webapp","ImageURI":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      # - printf '{"ImageURI":"%s"}' $REPOSITORY_URI:$IMAGE_TAG > imageDetail.json
 artifacts:
   files:
     - imagedefinitions.json
