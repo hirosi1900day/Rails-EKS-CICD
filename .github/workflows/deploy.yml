@@ -15,7 +15,7 @@ permissions:
   
 env:
   AWS_REGION: ap-northeast-1
-  WEBAPP_TAG: ${{ github.sha }}
+  WEBAPP_TAG: ${{ github.sha | cut -c 1-7 }}
   WEBAPP_CONTAINER_NAME: rails-eks
 
 jobs:
