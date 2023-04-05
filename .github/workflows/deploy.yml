@@ -16,7 +16,7 @@ permissions:
 env:
   AWS_REGION: ap-northeast-1
   WEBAPP_TAG: ${{ github.sha }}
-  ECR_REGISTRY: 572919087216.dkr.ecr.ap-northeast-1.amazonaws.com
+  ECR_REGISTRY: "572919087216.dkr.ecr.ap-northeast-1.amazonaws.com"
   WEBAPP_CONTAINER_NAME: rails-eks
 
 jobs:
@@ -44,7 +44,6 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
-        echo "$ECR_REGISTRY/$WEBAPP_CONTAINER_NAME:$WEBAPP_TAG"
         docker build -t $ECR_REGISTRY/$WEBAPP_CONTAINER_NAME:$WEBAPP_TAG .
         docker tag $ECR_REGISTRY/$WEBAPP_CONTAINER_NAME:$WEBAPP_TAG $ECR_REGISTRY/$WEBAPP_CONTAINER_NAME:latest
         docker push $ECR_REGISTRY/$WEBAPP_CONTAINER_NAME:$WEBAPP_TAG
