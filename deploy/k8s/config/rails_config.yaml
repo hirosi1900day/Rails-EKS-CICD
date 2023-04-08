@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rails-config
+data:
+  RAILS_ENV: development
+  APP_DATABASE_HOST: terraform-20230408053558800900000001.cjqocvuyay1h.ap-northeast-1.rds.amazonaws.com
+  DB_USER: foo
+  DB_HOST: handson_user
+  MYSQL_ROOT_PASSWORD: foobarbaz
