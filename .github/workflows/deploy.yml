@@ -45,4 +45,10 @@ jobs:
       run: |
         docker build -t 572919087216.dkr.ecr.ap-northeast-1.amazonaws.com/$WEBAPP_CONTAINER_NAME:latest .
         docker push 572919087216.dkr.ecr.ap-northeast-1.amazonaws.com/$WEBAPP_CONTAINER_NAME:latest
+    
+    - name: EKS　Deploy
+      run: |
+        aws eks update-kubeconfig --name test_eks --region ap-northeast-1
+        kubectl apply -f k8s/config/rails_config.yaml
+        kubectl apply -f k8s/deployment.yaml
    
