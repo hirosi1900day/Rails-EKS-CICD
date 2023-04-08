@@ -26,15 +26,18 @@ spec:
 
 
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
   name: rails-service
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "alb"
 spec:
-  type: LoadBalancer
   selector:
-    app: rails
+    app: rails-eks
   ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 3000
+  - name: http
+    port: 80
+    targetPort: 3000
+  type: LoadBalancer
