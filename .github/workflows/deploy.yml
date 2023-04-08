@@ -49,6 +49,6 @@ jobs:
     - name: EKS　Deploy
       run: |
         aws eks update-kubeconfig --name test_eks --region ap-northeast-1
-        kubectl apply -f k8s/config/rails_config.yaml
-        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f deploy/k8s/config/rails_config.yaml
+        kubectl apply -f deploy/k8s/deployment.yaml
    
